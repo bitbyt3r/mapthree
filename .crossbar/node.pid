@@ -1,0 +1,19 @@
+{
+    "pid": 27642, 
+    "argv": [
+        "/opt/crossbar/bin/crossbar", 
+        "start"
+    ], 
+    "options": {
+        "cdc": false, 
+        "cbdir": "/extra/mark25/mapthree/.crossbar", 
+        "config": "config.json", 
+        "logdir": null, 
+        "logtofile": false, 
+        "loglevel": "info", 
+        "colour": "auto", 
+        "logformat": "standard", 
+        "command": "start", 
+        "reactor": null
+    }
+}
