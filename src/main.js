@@ -11,7 +11,7 @@ import Space from './Space.vue'
 Vue.use(VueWamp, {
   debug: true,
   lazy_open: false,
-  url: 'ws://localhost:8888/ws',
+  url: 'ws://photomaster.irc.umbc.edu:8888/ws',
   realm: 'realm1',
   onopen: function(session, details) {
     console.log('WAMP connected', session, details);
@@ -41,7 +41,7 @@ const router = new VueRouter({
 
 const store = new Vuex.Store();
 
-new Vue({
+window.vue = new Vue({
   router,
   store,
   el: '#app',
