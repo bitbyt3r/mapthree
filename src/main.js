@@ -1,4 +1,3 @@
-import 'aframe'
 import Vue from 'vue'
 import Vuex from 'vuex'
 import VueMaterial from 'vue-material'
