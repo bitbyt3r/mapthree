@@ -42,11 +42,24 @@ class Base(object):
   @classmethod
   def query_get(cls, db, id):
     print("Getting {} from {}".format(id, cls._tablename))
-    return db.query("SELECT * FROM {} WHERE id = :id".format(cls._tablename), id=id).export('json')
+    results = db.query("SELECT * FROM {} WHERE id = :id".format(cls._tablename), id=id)
+    try:
+      return results.export('json')
+    except IndexError:
+      return []
 
   @classmethod
   def query_get_all(cls, db):
     print("Getting all from {}".format(cls._tablename))
-    return db.query("SELECT * FROM {}".format(cls._tablename)).export('json')
+    results = db.query("SELECT * FROM {}".format(cls._tablename))
+    try:
+      return results.export('json')
+    except IndexError:
+      return []
 
 
+# Constants
+INTEGER = "INTEGER"
+REAL = "REAL"
+DATETIME = "DATETIME"
+TEXT = "TEXT"
