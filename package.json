@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "aframe": "^0.6.0",
+    "aframe-mouse-cursor-component": "^0.5.2",
     "vue": "^2.3.3",
     "vue-material": "^0.7.4",
     "vue-router": "^2.7.0",

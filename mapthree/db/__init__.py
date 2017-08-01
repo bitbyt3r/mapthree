@@ -1,7 +1,9 @@
 import records
 
 from .Group_Membership import Group_Membership
+from .Arrangement import Arrangement
 from .Model_File import Model_File
+from .Connection import Connection
 from .Coordinate import Coordinate
 from .Session import Session
 from .Entity import Entity
@@ -13,7 +15,9 @@ from .User import User
 
 db_types = [
   Group_Membership,
+  Arrangement,
   Model_File,
+  Connection,
   Coordinate,
   Session,
   Entity,

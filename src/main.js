@@ -29,7 +29,7 @@ const routes = [{
     component: Home
   },
   {
-    path: '/space',
+    path: '/space/:id',
     component: Space
   }
 ];

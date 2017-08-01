@@ -7,5 +7,5 @@ class Query(Base):
   _fields = {
     "name": {"type": TEXT},
     "description": {"type": TEXT},
-    "query": {"type": TEXT},
+    "querystring": {"type": TEXT},
   }

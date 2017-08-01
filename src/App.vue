@@ -39,6 +39,7 @@
      </div>
     </md-toolbar>
     <router-link to="/"><h3>Home</h3></router-link>
+    <router-link to="/space"><h3>Test Space</h3></router-link>
     <router-link to="/spaces"><h3>Spaces</h3></router-link>
     <router-link to="/contact"><h3>Contact</h3></router-link>
     <router-link to="/help"><h3>Help</h3></router-link>

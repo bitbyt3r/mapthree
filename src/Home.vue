@@ -1,6 +1,15 @@
 <template>
   <div>
-    2+2={{ test }}
+    <h1>Welcome to MapThree</h1>
+    <h2>Spaces</h2>
+    <ul class="md-list">
+      <li v-for="space in spaces" :key="space.id" class="md-list-item">
+        <router-link :to="'/space/' + space.id">
+          <h3>{{ space.name }}</h3>
+        </router-link>
+        <p>{{ space.description }}</p>
+      </li>
+    </ul>
   </div>
 </template>
 
@@ -8,14 +17,14 @@
   export default {
     data() {
       return {
-        test: 5
+        spaces: []
       };
     },
     mounted() {
       var self = this;
-      this.$wamp.call('com.example.add2', [2,2]).then(
+      this.$wamp.call('db.space.get_all').then(
         function(res) {
-          self.test = res;
+          self.spaces = res;
         }
       );
     }

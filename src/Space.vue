@@ -3,56 +3,124 @@
   <md-layout md-gutter>
    <md-layout md-gutter md-flex="20">
     <md-whiteframe md-elevation="5" style="width: 100%">
-     <div>
+     <div class="content-organizer">
       <h1>
        Content Organizer
       </h1>
       <ul class="md-list md-dense">
-       <li class="md-list-item">Cylinder</li>
-       <li class="md-list-item">Cube</li>
-       <li class="md-list-item">Sphere</li>
-       <li class="md-list-item">Map</li>
+       <li v-for="entity in entities" :key="entity.id" class="md-list-item entity-list-item" v-on:click="lookAt(entity)">{{ entity.name }}</li>
       </ul>
      </div>
     </md-whiteframe>
    </md-layout>
    <md-layout md-gutter>
     <a-scene>
-     <a-box position="-1 -0.5 -3" rotation="0 45 0" color="#4CC3D9"
-      event-set__enter="_event: mouseenter; color: #6FF7FF"
-      event-set__leave="_event: mouseleave; color: #4CC3D9">
-     </a-box>
-     <a-sphere position="0 0.25 -5" radius="1.25" color="#EF2D5E"
-      event-set__enter="_event: mouseenter; color: #FF4F8F"
-      event-set__leave="_event: mouseleave; color: #EF2D5E">
-     </a-sphere>
-     <a-cylinder position="1 -0.25 -3" radius="0.5" height="1.5" color="#FFC65D"
-      event-set__enter="_event: mouseenter; color: #FFE87F"
-      event-set__leave="_event: mouseleave; color: #FFC65D">
-     </a-cylinder>
-     <a-plane position="0 -1 -4" rotation="-90 0 0" width="4" height="4" color="#7BC8A4"></a-plane>
+     <a-entity v-for="entity in entities" :key="entity.id" :id="entity.id" geometry="primitive: box" :position="entity.strpos">
+     </a-entity>
+     <a-text v-for="entity in entities" :key="entity.id" :id="entity.id" width="10" z-offset="2" anchor="center" color="black" :value="entity.text" :position="entity.strpos" billboard></a-text>
      <a-sky color="#ECECEC"></a-sky>
-     <a-entity camera look-controls mouse-cursor></a-entity>
+     <a-entity position="5 0 0" camera mouse-cursor look-controls="reverseMouseDrag: true" wasd-controls="fly: true">
+     </a-entity>
     </a-scene>
    </md-layout>
   </md-layout>
  </div>
 </template>
 
+<style>
+.entity-list-item:hover {
+  background-color: blue;
+  color: white;
+  cursor: pointer;
+};
+
+.content-organizer {
+  overflow-y: auto;
+  height: 90vh;
+};
+</style>
+
 <script>
   export default {
     data() {
       return {
-	test: 5
+	entities: []
       };
     },
     mounted() {
       var self = this;
-      this.$wamp.call('com.example.add2', [2,2]).then(
+      self.queries = [];
+      self.$wamp.call('db.space.get', [], {"id": self.$route.params.id}).then(
         function(res) {
-          self.test = res;
+          self.space = res[0];
+          self.$wamp.call('db.arrangement.get', [], {"space_id": self.space.id}).then(
+            function(arrangements) {
+              arrangements.forEach(function(arrangement) {
+                self.$wamp.call('db.query.get', [], {"id": arrangement.query_id}).then(
+                  function(query) {
+                    self.queries.push(query[0]);
+                    self.run_query(query[0]);
+                  }
+                );
+              });
+            }
+          );
         }
       );
+    },
+    methods: {
+      run_query: function(query) {
+        var self = this;
+        this.$wamp.call('run_query', [query.querystring]).then(
+          function(res) {
+            self.entities = JSON.parse(res).result;
+            self.entities.forEach(function(entity) {
+              entity.strpos = entity.pos[0] + " " + entity.pos[1] + " " + entity.pos[2];
+            });
+            document.querySelectorAll('a-entity').forEach(
+              function(entity) {
+                entity.addEventListener('click', function (evt) {
+                  console.log(evt);
+                  if (evt.detail.target.id) {
+                    self.entities.forEach(function(ent) {
+                      if (ent.id == evt.detail.target.id) {
+                        self.lookAt(ent);
+                      };
+                    });
+                  };
+                });
+              }
+            );
+          }
+        );
+      },
+      lookAt: function(entity) {
+        var camera = document.querySelector('a-entity[camera]');
+        var anim = document.createElement("a-animation");
+        var cam_pos = camera.object3D.position.clone();
+        var entity_pos = new THREE.Vector3(...entity.pos);
+        var to_vec = entity_pos.sub(cam_pos);
+        var flat_dist = Math.sqrt(to_vec.x**2 + to_vec.z**2);
+        var dest_x = 57.29*Math.atan2(to_vec.y, flat_dist);
+        var dest_y = 57.29*Math.atan2(-1*to_vec.x, -1*to_vec.z);
+        var dest = dest_x + " " + dest_y + " 0";
+        var dist = to_vec.length();
+        if (dist > 10) {
+          var truck_anim = document.createElement("a-animation");
+          truck_anim.setAttribute("attribute", "position");
+          to_vec.normalize();
+          to_vec.multiplyScalar(dist - 10);
+          cam_pos.add(to_vec);
+          truck_anim.setAttribute("to", cam_pos.x + " " + cam_pos.y + " " + cam_pos.z);
+          truck_anim.setAttribute("dur", 1000);
+          camera.appendChild(truck_anim);
+        }
+        anim.setAttribute("delay", 200);
+        anim.setAttribute("dur", 600);
+        anim.setAttribute("to", dest);
+        anim.setAttribute("attribute", "rotation");
+        camera.appendChild(anim);
+      }
     }
   }
 </script>

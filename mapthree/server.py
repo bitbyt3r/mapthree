@@ -23,7 +23,7 @@ def register(func, procedure=None):
 @register
 def run_query(query):
   headers = {"Content-Type": "application/json"}
-  r = requests.post('http://localhost:5000/query', data=query, headers=headers)
+  r = requests.post('http://viki.irc.umbc.edu:5000/query', data=query, headers=headers)
   return r.text
 
 db.init()

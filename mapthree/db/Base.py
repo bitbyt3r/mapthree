@@ -1,3 +1,4 @@
+import json
 import inspect
 from functools import partial
 
@@ -40,11 +41,13 @@ class Base(object):
     db.query('UPDATE {} SET {} WHERE id = :id'.format(cls._tablename, values), id=id)
 
   @classmethod
-  def query_get(cls, db, id):
-    print("Getting {} from {}".format(id, cls._tablename))
-    results = db.query("SELECT * FROM {} WHERE id = :id".format(cls._tablename), id=id)
+  def query_get(cls, db, **kwargs):
+    keys = kwargs.keys()
+    keystr = ", ".join(keys)
+    keystrc = ", ".join([":"+x for x in keys])
+    results = db.query("SELECT * FROM {} WHERE {} = {}".format(cls._tablename, keystr, keystrc), **kwargs)
     try:
-      return results.export('json')
+      return json.loads(results.export('json'))
     except IndexError:
       return []
 
@@ -53,10 +56,18 @@ class Base(object):
     print("Getting all from {}".format(cls._tablename))
     results = db.query("SELECT * FROM {}".format(cls._tablename))
     try:
-      return results.export('json')
+      return json.loads(results.export('json'))
     except IndexError:
       return []
 
+  @classmethod
+  def query_count(cls, db):
+    print("Getting count of {}".format(cls._tablename))
+    results = db.query("SELECT count(*) from {}".format(cls._tablename))
+    try:
+      return results.dataset["count(*)"][0]
+    except IndexError:
+      return -1
 
 # Constants
 INTEGER = "INTEGER"
